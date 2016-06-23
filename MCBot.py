@@ -62,7 +62,8 @@ async def whitelistadd(*message : str):
             await bot.say(response)
     except mcrcon.MCRconException:
         await bot.say("Rcon seems to have died - Try !connect")	
-
+        
+@bot.command()
 async def whitelistremove(*message : str):
     message = ' '.join(message).strip()
     try:
