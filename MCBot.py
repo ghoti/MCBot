@@ -21,6 +21,7 @@ async def on_ready():
     rcon.login(config['minecraft']['pass'])
 
 @bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
 async def online():
     try:
         response = rcon.command('/list')
@@ -30,6 +31,7 @@ async def online():
         await bot.say("Rcon seems to have died - Try !connect")
 
 @bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
 async def say(*message : str):
     message = ' '.join(message).strip()
     try:
@@ -41,16 +43,17 @@ async def say(*message : str):
         await bot.say("Rcon seems to have died - Try !connect")
 
 @bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
 async def whitelist():
     try:
         response = rcon.command('/whitelist list')
         if response:
             await bot.say(response)
-            print(type(response))
     except mcrcon.MCRconException:
         await bot.say("Rcon seems to have died - Try !connect")
 
 @bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
 async def connect():
     try:
         rcon.disconnect()

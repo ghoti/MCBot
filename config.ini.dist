@@ -1,5 +1,6 @@
 [discord]
 bottoken = thisisabottoken
+roleforcommand = Administrator
 
 [minecraft]
 host = minecraft.com
