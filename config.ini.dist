@@ -1,0 +1,7 @@
+[discord]
+bottoken = thisisabottoken
+
+[minecraft]
+host = minecraft.com
+port = 8675309
+pass = password
