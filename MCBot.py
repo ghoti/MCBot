@@ -51,6 +51,26 @@ async def whitelist():
             await bot.say(response)
     except mcrcon.MCRconException:
         await bot.say("Rcon seems to have died - Try !connect")
+		
+@bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
+async def whitelistadd(*message : str):
+    message = ' '.join(message).strip()
+    try:
+        response = rcon.command('/whitelist add ' + message)
+        if response:
+            await bot.say(response)
+    except mcrcon.MCRconException:
+        await bot.say("Rcon seems to have died - Try !connect")	
+
+async def whitelistremove(*message : str):
+    message = ' '.join(message).strip()
+    try:
+        response = rcon.command('/whitelist remove ' + message)
+        if response:
+            await bot.say(response)
+    except mcrcon.MCRconException:
+        await bot.say("Rcon seems to have died - Try !connect")			
 
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
