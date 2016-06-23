@@ -16,7 +16,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-    print('logging in...')
+    #print('logging in...')
     rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
     rcon.login(config['minecraft']['pass'])
 
@@ -26,8 +26,8 @@ async def online():
         response = rcon.command('/list')
         if response:
             await bot.say(response)
-    except Exception as e:
-        print(e)
+    except mcrcon.MCRconException:
+        await bot.say("Rcon seems to have died - Try !connect")
 
 @bot.command()
 async def say(*message : str):
@@ -37,8 +37,8 @@ async def say(*message : str):
         if response:
             await bot.say(response)
         await bot.say('`{}` sent to everyone.'.format(message))
-    except Exception as e:
-        print(e)
+    except mcrcon.MCRconException:
+        await bot.say("Rcon seems to have died - Try !connect")
 
 @bot.command()
 async def whitelist():
@@ -47,8 +47,20 @@ async def whitelist():
         if response:
             await bot.say(response)
             print(type(response))
-    except Exception as e:
-        print(e)
+    except mcrcon.MCRconException:
+        await bot.say("Rcon seems to have died - Try !connect")
+
+@bot.command()
+async def connect():
+    try:
+        rcon.disconnect()
+    except:
+        pass
+
+    rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
+    rcon.login(config['minecraft']['pass'])
+
+    await bot.say("Rcon is connected...")
 
 
 
