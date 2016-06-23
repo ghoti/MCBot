@@ -64,6 +64,7 @@ async def whitelistadd(*message : str):
         await bot.say("Rcon seems to have died - Try !connect")	
         
 @bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
 async def whitelistremove(*message : str):
     message = ' '.join(message).strip()
     try:
