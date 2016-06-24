@@ -9,6 +9,7 @@ rcon = mcrcon.MCRcon()
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -16,77 +17,105 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-    #print('logging in...')
+    rcon_connect()
+
+
+def rcon_connect():
     rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
     rcon.login(config['minecraft']['pass'])
+
+
+def rcon_disco():
+    rcon.disconnect()
+
 
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
 async def online():
-    try:
-        response = rcon.command('/list')
-        if response:
-            await bot.say(response)
-    except mcrcon.MCRconException:
-        await bot.say("Rcon seems to have died - Try !connect")
+    rcon_connect()
+    if rcon.socket:
+        try:
+            response = rcon.command('/list')
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - Check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
+
+    rcon_disco()
+
 
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
 async def say(*message : str):
-    message = ' '.join(message).strip()
-    try:
-        response = rcon.command('/say ' + message)
-        if response:
-            await bot.say(response)
-        await bot.say('`{}` sent to everyone.'.format(message))
-    except mcrcon.MCRconException:
-        await bot.say("Rcon seems to have died - Try !connect")
+    rcon_connect()
+    if rcon.socket:
+        message = ' '.join(message).strip()
+        try:
+            response = rcon.command('/say ' + message)
+            if response:
+                await bot.say(response)
+            await bot.say('`{}` sent to everyone.'.format(message))
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
+
+    rcon_disco()
+
 
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
 async def whitelist():
-    try:
-        response = rcon.command('/whitelist list')
-        if response:
-            await bot.say(response)
-    except mcrcon.MCRconException:
-        await bot.say("Rcon seems to have died - Try !connect")
-		
+    rcon_connect()
+    if rcon.socket:
+        try:
+            response = rcon.command('/whitelist list')
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
+
+    rcon_disco()
+
+
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
 async def whitelistadd(*message : str):
-    message = ' '.join(message).strip()
-    try:
-        response = rcon.command('/whitelist add ' + message)
-        if response:
-            await bot.say(response)
-    except mcrcon.MCRconException:
-        await bot.say("Rcon seems to have died - Try !connect")	
-        
+    rcon_connect()
+    if rcon.socket:
+        message = ' '.join(message).strip()
+        try:
+            response = rcon.command('/whitelist add ' + message)
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
+
+    rcon_disco()
+
+
 @bot.command()
 @commands.has_role(config['discord']['roleforcommand'])
 async def whitelistremove(*message : str):
-    message = ' '.join(message).strip()
-    try:
-        response = rcon.command('/whitelist remove ' + message)
-        if response:
-            await bot.say(response)
-    except mcrcon.MCRconException:
-        await bot.say("Rcon seems to have died - Try !connect")			
+    rcon_connect()
+    if rcon.socket:
+        message = ' '.join(message).strip()
+        try:
+            response = rcon.command('/whitelist remove ' + message)
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
 
-@bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
-async def connect():
-    try:
-        rcon.disconnect()
-    except:
-        pass
-
-    rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
-    rcon.login(config['minecraft']['pass'])
-
-    await bot.say("Rcon is connected...")
-
+    rcon_disco()
 
 
 bot.run(config['discord']['bottoken'])
