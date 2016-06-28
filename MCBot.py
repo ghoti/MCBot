@@ -114,8 +114,9 @@ async def whitelistremove(*message: str):
 
     rcon_disco()
 
+
 @bot.command()
-commands.has_any_role(user)
+@commands.has_any_role(user)
 async def status():
     '''
     Show the status.. of .. some thing!
@@ -123,12 +124,12 @@ async def status():
     logging.debug('status called')
     send_receive_rcon('/cofh tps')
 
-	
+
 @bot.command()
 @commands.has_any_role(admin)
 async def kick(*message: str):
     logging.debug('user kick called')
     message = ' '.join(message)
     send_receive_rcon('/kick ' + message)
-	
+
 bot.run(config['discord']['bottoken'])
