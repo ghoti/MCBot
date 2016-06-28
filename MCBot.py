@@ -128,6 +128,9 @@ async def status():
 @bot.command()
 @commands.has_any_role(admin)
 async def kick(*message: str):
+    '''
+    Kick a fool
+    '''
     logging.debug('user kick called')
     message = ' '.join(message)
     send_receive_rcon('/kick ' + message)
