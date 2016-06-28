@@ -101,6 +101,10 @@ class Client:
     connector : aiohttp.BaseConnector
         The `connector`_ to use for connection pooling. Useful for proxies, e.g.
         with a `ProxyConnector`_.
+    shard_id : Optional[int]
+        Integer starting at 0 and less than shard_count.
+    shard_count : Optional[int]
+        The total number of shards.
 
     Attributes
     -----------
@@ -133,6 +137,8 @@ class Client:
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self._listeners = []
         self.cache_auth = options.get('cache_auth', True)
+        self.shard_id = options.get('shard_id')
+        self.shard_count = options.get('shard_count')
 
         max_messages = options.get('max_messages')
         if max_messages is None or max_messages < 100:
@@ -147,6 +153,10 @@ class Client:
         self._closed = asyncio.Event(loop=self.loop)
         self._is_logged_in = asyncio.Event(loop=self.loop)
         self._is_ready = asyncio.Event(loop=self.loop)
+
+        if VoiceClient.warn_nacl:
+            VoiceClient.warn_nacl = False
+            log.warning("PyNaCl is not installed, voice will NOT be supported")
 
     # internals
 
@@ -1498,7 +1508,7 @@ class Client:
             if 'new_password' in fields:
                 args['new_password'] = fields['new_password']
 
-        yield from self.http.edit_profile(**args)
+        data = yield from self.http.edit_profile(**args)
         if not_bot_account:
             self.email = data['email']
             if 'token' in data:
@@ -2118,6 +2128,8 @@ class Client:
             Accepting the invite failed.
         NotFound
             The invite is invalid or expired.
+        Forbidden
+            You are a bot user and cannot use this endpoint.
         """
 
         invite_id = self._resolve_invite(invite)

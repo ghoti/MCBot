@@ -174,7 +174,7 @@ class Command:
         if converter.__module__.startswith('discord.'):
             converter = getattr(converters, converter.__name__ + 'Converter')
 
-        if issubclass(converter, converters.Converter):
+        if inspect.isclass(converter) and issubclass(converter, converters.Converter):
             instance = converter(ctx, argument)
             if asyncio.iscoroutinefunction(instance.convert):
                 return (yield from instance.convert())
@@ -306,7 +306,7 @@ class Command:
                 if self.rest_is_raw:
                     converter = self._get_converter(param)
                     argument = view.read_rest()
-                    kwargs[name] = yield from self.do_conversion(ctx.bot, ctx.message, converter, argument)
+                    kwargs[name] = yield from self.do_conversion(ctx, converter, argument)
                 else:
                     kwargs[name] = yield from self.transform(ctx, param)
                 break
