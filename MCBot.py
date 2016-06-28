@@ -120,7 +120,7 @@ async def status():
     Show the status.. of .. some thing!
     '''
     logging.debug('status called')
-    send_receive_rcon('/cofh tps')
+    await send_receive_rcon('/cofh tps')
 
 
 @bot.command()
@@ -131,6 +131,6 @@ async def kick(*message: str):
     '''
     logging.debug('user kick called')
     message = ' '.join(message)
-    send_receive_rcon('/kick ' + message)
+    await send_receive_rcon('/kick ' + message)
 
 bot.run(config['discord']['bottoken'])
