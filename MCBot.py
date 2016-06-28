@@ -114,14 +114,26 @@ async def whitelistremove(*message: str):
 
 
 @bot.command()
-@commands.has_any_role(user)
+@commands.has_any_role(admin, mod, user)
 async def status():
     '''
     Show the status.. of .. some thing!
     '''
     logging.debug('status called')
     await send_receive_rcon('/cofh tps')
+	
+	
+	
+@bot.command()
+@commands.has_any_role(admin)
+async def forgecraft():
+    '''
+    Emulates the weather on forgecraft!
+    '''
+    logging.debug('Forgecraft weather enabled')
+    await send_receive_rcon('/weather thunder')
 
+	
 
 @bot.command()
 @commands.has_any_role(admin)
