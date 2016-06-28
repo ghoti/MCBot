@@ -1,6 +1,9 @@
 import configparser
+import logging
 from discord.ext import commands
 import mcrcon
+
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 description = '''Basic Minecraft Discord Bot'''
 bot = commands.Bot(command_prefix='!', description=description)
@@ -9,144 +12,125 @@ rcon = mcrcon.MCRcon()
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+admin = config['discord']['adminrole']
+mod = config['discord']['modrole']
+user = config['discord']['userrole']
+
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    print('------')
-
-    rcon_connect()
+    logging.info('Logged in as')
+    logging.info(bot.user.name)
+    logging.info(bot.user.id)
 
 
-def rcon_connect():
-    rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
-    rcon.login(config['minecraft']['pass'])
+async def rcon_connect():
+    logging.info('Starting RCON connection at {}:{} with pass starting with {}'.
+                  format(config['minecraft']['host'], config['minecraft']['port'], config['minecraft']['pass'][:2]))
+    try:
+        rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
+        rcon.login(config['minecraft']['pass'])
+    except ConnectionRefusedError:
+        await bot.say('RCON refused our connection, is it up?')
+    except ConnectionError:
+        await bot.say('General Network Error, check that bot server can reach RCON server')
+    except Exception as e:
+        await bot.say('PANIC: {} - This happened'.format(e))
 
 
 def rcon_disco():
+    logging.debug('Disconnecting from RCON')
+    if not rcon.socket:
+        logging.debug('No server to disconnect from, aborting')
+        return
     rcon.disconnect()
 
 
+async def send_receive_rcon(command):
+    logging.info('Sending command {} to rcon and listening for response'.format(command))
+    await rcon_connect()
+    if rcon.socket:
+        try:
+            response = rcon.command(command)
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say('RCON Connection Error - Check config for proper credentials to RCON')
+
+    rcon_disco()
+
+
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
+@commands.has_any_role(admin, mod, user)
 async def online():
-    rcon_connect()
-    if rcon.socket:
-        try:
-            response = rcon.command('/list')
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - Check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
-
-    rcon_disco()
+    '''
+    List the users online on the server (maybe)
+    '''
+    logging.debug('list command called')
+    await send_receive_rcon('/list')
 
 
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
-async def say(*message : str):
-    rcon_connect()
-    if rcon.socket:
-        message = ' '.join(message).strip()
-        try:
-            response = rcon.command('/say ' + message)
-            if response:
-                await bot.say(response)
-            await bot.say('`{}` sent to everyone.'.format(message))
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
-
-    rcon_disco()
+@commands.has_any_role(admin, mod)
+async def say(*message: str):
+    '''
+    Announce to the server as console
+    '''
+    logging.debug('server announce called')
+    message = ' '.join(message).strip()
+    await send_receive_rcon('/say ' + message)
 
 
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
+@commands.has_any_role(admin, mod, user)
 async def whitelist():
-    rcon_connect()
-    if rcon.socket:
-        try:
-            response = rcon.command('/whitelist list')
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
-
-    rcon_disco()
+    '''
+    Show the whitelist
+    '''
+    logging.debug('whitelist list called')
+    await send_receive_rcon('/whitelist list')
 
 
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
+@commands.has_any_role(admin)
 async def whitelistadd(*message : str):
-    rcon_connect()
-    if rcon.socket:
-        message = ' '.join(message).strip()
-        try:
-            response = rcon.command('/whitelist add ' + message)
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
-
-    rcon_disco()
+    '''
+    Add a user to the whitelist
+    '''
+    logging.debug('whitelist add called')
+    message = ' '.join(message).strip()
+    await send_receive_rcon('/whitelist add ' + message)
 
 
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
-async def whitelistremove(*message : str):
-    rcon_connect()
-    if rcon.socket:
-        message = ' '.join(message).strip()
-        try:
-            response = rcon.command('/whitelist remove ' + message)
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
+@commands.has_any_role(admin)
+async def whitelistremove(*message: str):
+    '''
+    Remove a user from the whitelist
+    '''
+    logging.debug('whitelist remove called')
+    message = ' '.join(message).strip()
+    await send_receive_rcon('/whitelist remove ' + message)
 
-    rcon_disco()
 
 @bot.command()
+@commands.has_any_role(user)
 async def status():
-    rcon_connect()
-    if rcon.socket:
-        try:
-            response = rcon.command('/cofh tps')
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - Check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
+    '''
+    Show the status.. of .. some thing!
+    '''
+    logging.debug('status called')
+    await send_receive_rcon('/cofh tps')
 
-    rcon_disco()
-	
+
 @bot.command()
-@commands.has_role(config['discord']['roleforcommand'])
-async def kick(*message : str):
-    rcon_connect()
-    if rcon.socket:
-        message = ' '.join(message).strip()
-        try:
-            response = rcon.command('/kick ' + message)
-            if response:
-                await bot.say(response)
-        except mcrcon.MCRconException:
-            await bot.say("Rcon connection failed - check config")
-    else:
-        await bot.say("Rcon connection failed - check config")
+@commands.has_any_role(admin)
+async def kick(*message: str):
+    '''
+    Kick a fool
+    '''
+    logging.debug('user kick called')
+    message = ' '.join(message)
+    await send_receive_rcon('/kick ' + message)
 
-    rcon_disco()
-	
 bot.run(config['discord']['bottoken'])
