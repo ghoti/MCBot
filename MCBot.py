@@ -17,8 +17,6 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
-    rcon_connect()
-
 
 def rcon_connect():
     rcon.connect(config['minecraft']['host'], int(config['minecraft']['port']))
