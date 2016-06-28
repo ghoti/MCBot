@@ -155,4 +155,15 @@ async def ban(*message: str):
     await send_receive_rcon('/ban ' + message)
 
 	
+@bot.command()
+@commands.has_any_role(admin)
+async def pardon(*message: str):
+    '''
+    Pardon a fool you banned
+    '''
+    logging.debug('user unbanned called')
+    message = ' '.join(message)
+    await send_receive_rcon('/pardon ' + message)
+	
+	
 bot.run(config['discord']['bottoken'])
