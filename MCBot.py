@@ -112,8 +112,6 @@ async def whitelistremove(*message: str):
     message = ' '.join(message).strip()
     await send_receive_rcon('/whitelist remove ' + message)
 
-    rcon_disco()
-
 
 @bot.command()
 @commands.has_any_role(user)
