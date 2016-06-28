@@ -123,7 +123,6 @@ async def status():
     await send_receive_rcon('/cofh tps')
 	
 	
-	
 @bot.command()
 @commands.has_any_role(admin)
 async def forgecraft():
@@ -133,16 +132,27 @@ async def forgecraft():
     logging.debug('Forgecraft weather enabled')
     await send_receive_rcon('/weather thunder')
 
-	
 
 @bot.command()
-@commands.has_any_role(admin)
+@commands.has_any_role(admin, mod)
 async def kick(*message: str):
     '''
     Kick a fool
     '''
-    logging.debug('user kick called')
+    logging.debug('user kicked called')
     message = ' '.join(message)
     await send_receive_rcon('/kick ' + message)
+	
 
+@bot.command()
+@commands.has_any_role(admin)
+async def ban(*message: str):
+    '''
+    Ban a fool
+    '''
+    logging.debug('user banned called')
+    message = ' '.join(message)
+    await send_receive_rcon('/ban ' + message)
+
+	
 bot.run(config['discord']['bottoken'])
