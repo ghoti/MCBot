@@ -139,7 +139,7 @@ async def kick(*message : str):
     if rcon.socket:
         message = ' '.join(message).strip()
         try:
-            response = rcon.command('/kick' + message)
+            response = rcon.command('/kick ' + message)
             if response:
                 await bot.say(response)
         except mcrcon.MCRconException:
