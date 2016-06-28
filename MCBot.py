@@ -57,7 +57,7 @@ async def send_receive_rcon(command):
         except mcrcon.MCRconException:
             await bot.say('RCON Connection Error - Check config for proper credentials to RCON')
 
-    await rcon_disco()
+    rcon_disco()
 
 
 @bot.command()
