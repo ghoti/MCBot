@@ -117,5 +117,36 @@ async def whitelistremove(*message : str):
 
     rcon_disco()
 
+@bot.command()
+async def status():
+    rcon_connect()
+    if rcon.socket:
+        try:
+            response = rcon.command('/cofh tps')
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - Check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
 
+    rcon_disco()
+	
+@bot.command()
+@commands.has_role(config['discord']['roleforcommand'])
+async def kick(*message : str):
+    rcon_connect()
+    if rcon.socket:
+        message = ' '.join(message).strip()
+        try:
+            response = rcon.command('/kick ' + message)
+            if response:
+                await bot.say(response)
+        except mcrcon.MCRconException:
+            await bot.say("Rcon connection failed - check config")
+    else:
+        await bot.say("Rcon connection failed - check config")
+
+    rcon_disco()
+	
 bot.run(config['discord']['bottoken'])
