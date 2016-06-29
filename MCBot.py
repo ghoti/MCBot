@@ -124,7 +124,7 @@ async def status():
 	
 	
 @bot.command()
-@commands.has_any_role(admin)
+@commands.has_any_role(admin, mod)
 async def forgecraft():
     '''
     Emulates the weather on forgecraft!
@@ -132,7 +132,7 @@ async def forgecraft():
     logging.debug('Forgecraft weather enabled')
     await send_receive_rcon('/weather thunder')
 
-
+	
 @bot.command()
 @commands.has_any_role(admin, mod)
 async def kick(*message: str):
@@ -165,5 +165,48 @@ async def pardon(*message: str):
     message = ' '.join(message)
     await send_receive_rcon('/pardon ' + message)
 	
+
+@bot.command()
+@commands.has_any_role(admin)
+async def banip(*message: str):
+    '''
+    Ban a fool via IP
+    '''
+    logging.debug('IP banned called')
+    message = ' '.join(message)
+    await send_receive_rcon('/ban-ip ' + message)
+
+	
+@bot.command()
+@commands.has_any_role(admin)
+async def pardonip(*message: str):
+    '''
+    Pardon a fool you banned via IP
+    '''
+    logging.debug('IP unbanned called')
+    message = ' '.join(message)
+    await send_receive_rcon('/pardon ' + message)
+
+
+@bot.command()
+@commands.has_any_role(admin, mod)
+async def banlist(*message: str):
+    '''
+    View the banlist. Needs to be followed by either IP or players
+    '''
+    logging.debug('Banlist called')
+    message = ' '.join(message)
+    await send_receive_rcon('/banlist ' + message)
+	
+
+@bot.command()
+@commands.has_any_role(admin)
+async def effect(*message: str):
+    '''
+    Add effects to players
+    '''
+    logging.debug('effect called')
+    message = ' '.join(message)
+    await send_receive_rcon('/effect ' + message)
 	
 bot.run(config['discord']['bottoken'])
