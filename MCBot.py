@@ -92,7 +92,7 @@ async def whitelist():
 
 
 @bot.command()
-@commands.has_any_role(admin)
+@commands.has_any_role(admin, mod)
 async def whitelistadd(*message : str):
     '''
     Add a user to the whitelist
@@ -103,7 +103,7 @@ async def whitelistadd(*message : str):
 
 
 @bot.command()
-@commands.has_any_role(admin)
+@commands.has_any_role(admin, mod)
 async def whitelistremove(*message: str):
     '''
     Remove a user from the whitelist
@@ -124,7 +124,7 @@ async def status():
 	
 	
 @bot.command()
-@commands.has_any_role(admin, mod)
+@commands.has_any_role(admin, mod, user)
 async def forgecraft():
     '''
     Emulates the weather on forgecraft!
